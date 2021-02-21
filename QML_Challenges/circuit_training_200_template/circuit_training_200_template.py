@@ -31,6 +31,35 @@ def find_max_independent_set(graph, params):
     max_ind_set = []
 
     # QHACK #
+    # Initialize the device
+    wires = range(len(graph))
+    dev = qml.device("default.qubit", wires=len(wires))
+
+    # Instantiate the QNode
+    # Defines the QAOA cost and mixer Hamiltonians
+    cost_h, mixer_h = qml.qaoa.max_independent_set(graph, constrained=True)
+
+    def qaoa_layer(gamma, alpha):
+        qml.qaoa.cost_layer(gamma, cost_h)
+        qml.qaoa.mixer_layer(alpha, mixer_h)
+
+    # Repeatedly applies layers of the QAOA ansatz
+    def circuit(params, **kwargs):
+        qml.layer(qaoa_layer, 10, params[0], params[1])
+
+    @qml.qnode(dev)
+    def probability_circuit(gamma, alpha):
+        circuit([gamma, alpha])
+        return qml.probs(wires=wires)
+
+    probs = probability_circuit(params[0], params[1])
+    max_id = np.argmax(probs)
+    max_id = bin(max_id)
+    max_id = [int(xx) for xx in max_id[2:]]
+    adders = len(graph) - len(max_id)
+    adders_array = [0] * adders
+    max_id = adders_array + max_id
+    max_ind_set = [ii for ii in range(len(max_id)) if max_id[ii] == 1]
 
     # QHACK #
 

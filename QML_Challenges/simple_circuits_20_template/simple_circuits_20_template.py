@@ -22,11 +22,17 @@ def simple_circuits_20(angle):
     # QHACK #
 
     # Step 1 : initalize a device
+    num_wires = 1
+    dev = qml.device('default.qubit', wires=num_wires)
 
     # Step 2 : Create a quantum circuit and qnode
+    @qml.qnode(dev)
+    def rotate_fct(theta):
+        qml.RX(theta, wires=0)
+        return qml.probs(0)
 
     # Step 3 : Run the qnode
-    # prob = ?
+    prob = rotate_fct(angle)[0]
 
     # QHACK #
     return prob
@@ -38,7 +44,6 @@ if __name__ == "__main__":
     # Load and process input
     angle_str = sys.stdin.read()
     angle = float(angle_str)
-
     ans = simple_circuits_20(angle)
 
     if isinstance(ans, np.tensor):

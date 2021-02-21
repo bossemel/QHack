@@ -25,11 +25,19 @@ def simple_circuits_50(angle):
     # QHACK #
 
     # Step 1 : initialize a device
+    num_wires = 2
+    dev = qml.device('default.qubit', wires=num_wires)
 
     # Step 2 : Create a quantum circuit and qnode
+    @qml.qnode(dev)
+    def rotate_y_fct(theta):
+        qml.Hadamard(wires=0)
+        qml.CNOT(wires=[0, 1])
+        qml.RY(theta, wires=0)
+        return qml.expval(qml.PauliZ(0) @ qml.PauliZ(1))
 
     # Step 3 : Run the qnode
-    # expectation_value = ?
+    expectation_value = rotate_y_fct(angle)
 
     # QHACK #
     return expectation_value

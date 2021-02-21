@@ -38,7 +38,24 @@ def parameter_shift(weights):
     gradient = np.zeros_like(weights)
 
     # QHACK #
-    #
+
+    s_param_g = 3
+
+    def param_shift(weights, s_param):
+        unit_v = np.zeros_like(weights)
+        gradient_ = np.zeros_like(weights)
+        for ii in np.ndenumerate(unit_v):
+            ii = ii[0]
+            unit_v[ii] = 1
+            gradient_[ii] = (circuit(weights + s_param_g * unit_v)
+                            - circuit(weights - s_param_g * unit_v)) / (2 * np.sin(s_param_g))
+            unit_v[ii] = 0
+        return gradient_
+
+    def calc_gradient(weights):
+        return param_shift(weights, s_param_g)
+
+    gradient = calc_gradient(weights)
     # QHACK #
 
     return gradient
